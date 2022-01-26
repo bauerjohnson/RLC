@@ -1,0 +1,376 @@
+63 => RENDERING LIST OF DATA
+
+using the project from last section
+
+in expenses.js
+
+return (
+    <div>
+      <Card className='expenses'>
+        <ExpensesFilter
+          selected={filteredYear} 
+          onChangeFilter={filterChangeHandler}
+        />
+        {props.items.map((expense) => (
+          <ExpenseItem
+            title={expense.title}
+            amount={expense.amount}
+            date={expense.date}
+          />
+        ))}
+      </Card>
+    </div>
+  );
+};
+
+
+here, we jst use mapping
+
+64 => USING STATEFUL LIST
+in app.js
+
+const DUMMY_EXPENSES = [
+  {
+    id: 'e1',
+    title: 'Toilet Paper',
+    amount: 94.12,
+    date: new Date(2020, 7, 14),
+  },
+  { id: 'e2', title: 'New TV', amount: 799.49, date: new Date(2021, 2, 12) },
+  {
+    id: 'e3',
+    title: 'Car Insurance',
+    amount: 294.67,
+    date: new Date(2021, 2, 28),
+  },
+  {
+    id: 'e4',
+    title: 'New Desk (Wooden)',
+    amount: 450,
+    date: new Date(2021, 5, 12),
+  },
+];
+
+const App = () => {
+  const [expenses, setExpenses] = useState(DUMMY_EXPENSES);
+
+const addExpenseHandler = expense => {
+    console.log('In App.js');
+    console.log(expense);
+  };
+
+  is now
+
+
+  const addExpenseHandler = (expense) => {
+    setExpenses((prevExpenses) => {
+      return [expense, ...prevExpenses]; 
+    });
+  };
+
+  now wen add new items in expenses, its adds to the list
+
+  65 => UNDERTSANDING KEYS
+
+  in expenses.js
+
+return (
+    <div>
+      <Card className='expenses'>
+        <ExpensesFilter
+          selected={filteredYear}
+          onChangeFilter={filterChangeHandler}
+        />
+        {props.items.map((expense) => (
+          <ExpenseItem
+        *  key = {expense.id}
+            title={expense.title}
+            amount={expense.amount}
+            date={expense.date}
+          />
+        ))}
+      </Card>
+    </div>
+  );
+};
+
+
+ASSIGNMENT 
+here we want to restrict some no. of things display, 
+so then we display them by their year
+
+in expenses.js
+
+const filteredExpense = props.items.filter(expense => {
+    return expense.date.getFullYear().toString() === filteredYear
+})
+
+{props.items.map((expense) => (
+          <ExpenseItem
+        *  key = {expense.id}
+            title={expense.title}
+            amount={expense.amount}
+            date={expense.date}
+          />
+        ))}
+      </Card>
+    </div>
+  );
+
+  is now 
+
+  {filteredExpense.map((expense) => (
+          <ExpenseItem
+        *  key = {expense.id}
+            title={expense.title}
+            amount={expense.amount}
+            date={expense.date}
+          />
+        ))}
+      </Card>
+    </div>
+  );
+
+
+
+66 => OUTPUTTING CONDITIONAL CONTENT
+in expenses.js
+
+let expensesContent = <p>No expenses found</p>
+
+if(filteredExpense.length > 0) {
+  expensesContent = filteredExpense.map((expense) => (
+          <ExpenseItem
+        *  key = {expense.id}
+            title={expense.title}
+            amount={expense.amount}
+            date={expense.date}
+          />
+        ))
+}
+ 
+
+ return (
+    <div>
+      <Card className='expenses'>
+        <ExpensesFilter
+          selected={filteredYear}
+          onChangeFilter={filterChangeHandler}
+        />
+        {expensesContent}
+        </Card>
+
+    NOW wen we choose a year that dont have any expenses,
+    we see 'no expenses found'
+
+  67 => ADDING CONDITIONAL RETURN STATEMENT
+
+  NEW => ExpensesList.js and ExpensesList.css, ExpenseItem.js,
+  expenses.js
+
+  in the ExpensesList.js
+
+  we cut the if check from the expenses.js and paste in here
+  (we first create a functional component in ExpensesList.js)
+import './ExpensesList.css'
+import ExpenseItem from ./ExpenseItem
+
+ if (props.items.length === 0) {
+    return <h2 className='expenses-list__fallback'>Found no expenses.</h2>;
+  }
+
+return (
+    <ul className='expenses-list'>
+      {props.items.map((expense) => (
+        <ExpenseItem
+          key={expense.id}
+          title={expense.title}
+          amount={expense.amount}
+          date={expense.date}
+        />
+      ))}
+    </ul>
+  );
+
+
+
+in ExpensesList.css
+
+.expenses-list {
+  list-style: none;
+  padding: 0;
+}
+
+.expenses-list__fallback {
+  color: white;
+  text-align: center;
+}
+
+in expenses.js
+
+we then
+
+ {expensesContent} is now <ExpensesList items = {filteredExpenses}/>
+
+in ExpensesItem.js
+
+we now remove div and use li since we using ul in ExpensesList
+
+ASSIGNMENT 2
+
+showing a button for addd new expense and making the
+button disappear after adding new expenses
+
+newexpenses.js, expenseform.js,
+
+in newexpenses.js
+
+import React, { useState } from 'react';
+
+const NewExpense = (props) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+   const expenseData = {
+      ...enteredExpenseData,
+      id: Math.random().toString(),
+    };
+    props.onAddExpense(expenseData);
+    *setIsEditing(false); //thereby closing the form wen its submitted
+  };
+
+    const startEditingHandler = () => {
+    setIsEditing(true);
+  };
+
+  const stopEditingHandler = () => {
+    setIsEditing(false);
+  };
+
+    return (
+    <div className='new-expense'>
+      {!isEditing && (
+        <button onClick={startEditingHandler}>Add New Expense</button>
+      )}
+      {isEditing && (
+        <ExpenseForm
+          onSaveExpenseData={saveExpenseDataHandler}
+          onCancel={stopEditingHandler}
+        />
+      )}
+    </div>
+  );
+};
+
+in ExpenseForm.js
+we add the cancel button here
+
+ <button type="button" onClick={props.onCancel}>Cancel</button>
+
+ 68 => DEMO APP : ADDING A CHART
+
+ NEW FOLDER => CHART => chart.css, chart.js, chartBar.js, chartBar.CSS
+
+ both css are in the project(chart n chartBar)
+
+ in chart.js
+ const Chart = (props) => {
+  const dataPointValues = props.dataPoints.map(dataPoint => dataPoint.value);  //converting objects to number, because we have an array of object(and not arrays of number in our expenseslist), so we need to convert it first
+  const totalMaximum = Math.max(...dataPointValues);
+
+  return (
+    <div className='chart'>
+      {props.dataPoints.map((dataPoint) => (
+        <ChartBar
+          key={dataPoint.label}
+          value={dataPoint.value}
+          maxValue={null} //no maxValue yet
+          label={dataPoint.label} //like january, febuary, e.t.c
+        />
+      ))}
+    </div>
+  );
+};
+
+69 => ADDING DYNAMIC STYLES
+
+in ChartBar.js
+
+import './ChartBar.css'; 
+
+const ChartBar = (props) => {
+  let barFillHeight = '0%';
+
+  if (props.maxValue > 0) {
+    barFillHeight = Math.round((props.value / props.maxValue) * 100) + '%';
+  }
+
+  return (
+    <div className='chart-bar'>
+      <div className='chart-bar__inner'>
+        <div
+          className='chart-bar__fill'
+          style={{ height: barFillHeight }} 
+        ></div>
+      </div>
+      <div className='chart-bar__label'>{props.label}</div>
+    </div>
+  );
+};
+
+70 WRAP UP N NEXT STEP
+NEW JS => EXPENSESCHART.JS, Chart.js-the dataPoint
+
+import Chart from '../Chart/Chart';
+
+const ExpensesChart = (props) => {
+  const chartDataPoints = [
+    { label: 'Jan', value: 0 },
+    { label: 'Feb', value: 0 },
+    { label: 'Mar', value: 0 },
+    { label: 'Apr', value: 0 },
+    { label: 'May', value: 0 },
+    { label: 'Jun', value: 0 },
+    { label: 'Jul', value: 0 },
+    { label: 'Aug', value: 0 },
+    { label: 'Sep', value: 0 },
+    { label: 'Oct', value: 0 },
+    { label: 'Nov', value: 0 },
+    { label: 'Dec', value: 0 },
+  ];
+
+  for (const expense of props.expenses) { // we looping through the expenses item in expenses.js through props
+    const expenseMonth = expense.date.getMonth(); // starting at 0 => January => 0
+    chartDataPoints[expenseMonth].value += expense.amount;  // the .value(we took the value in the array)  and then chartDataPoints[expenseMonth].value = chartDataPoints[expenseMonth].value + expense.amount;, all items for that month is added together, so now the value is no longer 0 i.e 0 + all the amount in that month
+  }
+
+  return <Chart dataPoints={chartDataPoints} />;
+};
+
+in chart.js
+
+const Chart = (props) => {
+  const dataPointValues = props.dataPoints.map(dataPoint => dataPoint.value);
+  const totalMaximum = Math.max(...dataPointValues);
+
+  in expenses.js
+
+  import ExpensesChart from ./ExpensesChart
+
+   return (
+    <div>
+      <Card className='expenses'>
+        <ExpensesFilter
+          selected={filteredYear}
+          onChangeFilter={filterChangeHandler}
+        />
+     **   <ExpensesChart expenses={filteredExpenses} //the one we loop thru/>
+        <ExpensesList items={filteredExpenses} />
+      </Card>
+    </div>
+  );
+};
+
+note: for(const expense of props.expenses) => props.expenses is an array
+note: for(const expense in props.expenses) =>this is for  object
+
+
